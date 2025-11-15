@@ -66,7 +66,7 @@ public class RobotCode_TeleOpEncoders extends OpMode {
     public void loop() {
         telemetry.addData("Current Orientation:", bench.getHeading(AngleUnit.DEGREES));
         telemetry.addData("Shooter Velocity:", m_shooter2.getVelocity());
-        telemetry.addData("Intake Velocity:",m_intake.getVelocity());
+        telemetry.addData("Intake Velocity:", m_intake.getVelocity());
         telemetry.addData("Posicion:", Servo90.getPosition());
         telemetry.addData("Distancia:", DistanceBench.getDistance());
         telemetry.update();
@@ -77,8 +77,7 @@ public class RobotCode_TeleOpEncoders extends OpMode {
         //Ejemplo : 200 = 22RPM
         double DesearedVelocity = 1900; //1850
 
-
-
+        boolean manualIntake = false;
 
 
         //----------------------C-h-a-s-i-s-----------------------
@@ -110,58 +109,62 @@ public class RobotCode_TeleOpEncoders extends OpMode {
         m_br.setPower(BRpower / MaxPower);
 
 
-
-
         //----------------------M-e-c-h-a-n-i-s-m-s-----------------------
 
-        if(gamepad1.left_trigger >=0.1){
+        if (gamepad1.left_trigger >= 0.1) {
             m_intake.setPower(-0.8);
+            manualIntake = true;
         }
 
 
-        if(gamepad1.right_trigger >=0.1){
+        if (gamepad1.right_trigger >= 0.1) {
 
             // telemetry.addData("Shooter Velocity:", m_shooter.getVelocity());
             // m_shooter.setVelocity(DesearedVelocity);
             m_shooter1.setPower(-power);
             m_shooter2.setPower(power);
 
-        }
-        else{
+        } else {
             m_shooter1.setPower(0);
             m_shooter2.setPower(0);
         }
 
-        if (gamepad1.left_bumper){
+        if (gamepad1.left_bumper) {
             m_intake.setPower(0);
+            manualIntake = true;
         }
 
-        if (gamepad1.x){
+        //Reseteo de frente
+        if (gamepad1.x) {
             bench.resetImu();
         }
 
-
-        if(m_intake.getVelocity() < 0 && m_shooter2.getVelocity() < 1){
+        //Servo
+        if (m_intake.getVelocity() < 0 && m_shooter2.getVelocity() < 1) {
             Servo90.setPosition(0.15);
         }
-
-        if(m_shooter2.getVelocity() >= 950 && m_intake.getVelocity() != 0 ){
+        if (m_shooter2.getVelocity() >= 950 && m_intake.getVelocity() != 0) {
             Servo90.setPosition(0.3);
-        }
-        else {
+        } else {
             Servo90.setPosition(0.15);
         }
 
-        if(gamepad1.b){
+        //Poder del motor
+        if (gamepad1.b) {
             power = 0.40;
         }
-        if (gamepad1.a){
+        if (gamepad1.a) {
             power = 0.5;
         }
-        if (DistanceBench.getDistance() >= 0 && DistanceBench.getDistance() <= 8) {
-            m_intake.setPower(-1);
-        } else {
-            m_intake.setPower(0);
+
+        //Sensor
+        if (!manualIntake) {
+            if (DistanceBench.getDistance() >= 0 && DistanceBench.getDistance() <= 8) {
+                m_intake.setPower(-1);
+
+            } else {
+                m_intake.setPower(0);
+            }
         }
     }
 }
