@@ -6,16 +6,14 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@TeleOp(name = "RobotDecodeUI")
-public class RobotCode_TeleOpEncoders extends OpMode {
+@TeleOp(name = "RobotManual")
+public class ManualRobot extends OpMode {
     //Recordatorio: Evitar o eliminar lineas de codigo u objetos que no se usan
     //En el codigo completo, esto puede generar delay a la hora de ejecutar el codigo.
     //---------------------------C-h-a-s-i-s--------------------------
-    int time;
     DcMotorEx m_fl;
     DcMotorEx m_fr;
     DcMotorEx m_bl;
@@ -25,11 +23,8 @@ public class RobotCode_TeleOpEncoders extends OpMode {
     DcMotorEx m_shooter2;
     public Servo Servo90;
     IMUBench bench = new IMUBench();
-    double power = 0.5;
-    ConfigureDistance DistanceBench = new ConfigureDistance();
-    boolean manualIntake = false;
-    ElapsedTime timer = new ElapsedTime();
-    private boolean extraTimeActive = false;
+
+    double power = 0;
 
 
     @Override
@@ -48,7 +43,6 @@ public class RobotCode_TeleOpEncoders extends OpMode {
 
         bench.init(hardwareMap);
 
-        DistanceBench.init(hardwareMap);
 
         m_shooter2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         m_shooter2.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
@@ -73,7 +67,6 @@ public class RobotCode_TeleOpEncoders extends OpMode {
         telemetry.addData("Shooter Velocity:", m_shooter2.getVelocity());
         telemetry.addData("Intake Velocity:", m_intake.getVelocity());
         telemetry.addData("Posicion:", Servo90.getPosition());
-        telemetry.addData("Distancia:", DistanceBench.getDistance());
         telemetry.update();
 
         double y = gamepad1.left_stick_y;
@@ -116,17 +109,15 @@ public class RobotCode_TeleOpEncoders extends OpMode {
 
         if (gamepad1.left_trigger >= 0.1) {
             m_intake.setPower(-0.8);
-            manualIntake = true;
+        }
+        else {
+            m_intake.setPower(0);
         }
 
 
         if (gamepad1.right_trigger >= 0.1) {
-
-            // telemetry.addData("Shooter Velocity:", m_shooter.getVelocity());
-            // m_shooter.setVelocity(DesearedVelocity);
-            m_shooter1.setPower(-power);
-            m_shooter2.setPower(power);
-
+            m_shooter1.setPower(-gamepad1.right_trigger);
+            m_shooter2.setPower(gamepad1.right_trigger);
         } else {
             m_shooter1.setPower(0);
             m_shooter2.setPower(0);
@@ -134,7 +125,6 @@ public class RobotCode_TeleOpEncoders extends OpMode {
 
         if (gamepad1.left_bumper) {
             m_intake.setPower(0);
-            manualIntake = true;
         }
 
         //Reseteo de frente
@@ -158,26 +148,6 @@ public class RobotCode_TeleOpEncoders extends OpMode {
         }
         if (gamepad1.a) {
             power = 0.5;
-        }
-
-        //Sensor
-        if (!manualIntake) {
-            if (DistanceBench.getDistance() >= 0 && DistanceBench.getDistance() <= 8) {
-                m_intake.setPower(-1);
-                extraTimeActive = true;
-                timer.reset();
-                }
-            else if (extraTimeActive) {
-
-                m_intake.setPower(-1);
-
-                if (timer.milliseconds() >= 300) {
-                    extraTimeActive = false;
-                }
-            }
-            else {
-                m_intake.setPower(0);
-            }
         }
     }
 }
