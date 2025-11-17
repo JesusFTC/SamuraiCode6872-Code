@@ -24,7 +24,7 @@ public class ManualRobot extends OpMode {
     public Servo Servo90;
     IMUBench bench = new IMUBench();
 
-    double power = 0.6;
+    double power = 0.5;
 
 
     @Override
@@ -131,10 +131,11 @@ public class ManualRobot extends OpMode {
 
         //Poder del motor
         if (gamepad1.b) {
-            power = 0.40;
+            power = 1;
         }
         if (gamepad1.a) {
-            power = 0.6;
+            power = 0.65;
         }
+
     }
 }
